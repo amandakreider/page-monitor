@@ -44,8 +44,12 @@ jobs:
 
       - name: Commit state file
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add page_hash.txt
-          git commit -m "Update page hash" || echo "No changes"
-          git push
+          if [ -f page_hash.txt ]; then
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add -f page_hash.txt
+            git commit -m "Update page hash" || echo "No changes"
+            git push
+          else
+            echo "page_hash.txt not created (page fetch failed); skipping commit"
+          fi

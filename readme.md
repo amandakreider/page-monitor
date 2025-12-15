@@ -54,7 +54,7 @@ export TARGET_URL="https://example.com/page"
 python watchpage.py
 ```
 
-### Option 2: .env file (recommended)
+### Option 2: `.env` file (recommended)
 
 Create a file named .env (not committed) that contains:
 

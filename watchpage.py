@@ -1,5 +1,6 @@
 import requests
 import hashlib
+import time
 from bs4 import BeautifulSoup
 from pathlib import Path
 
@@ -7,12 +8,26 @@ URL = "https://www.nia.nih.gov/2026-dementia-care-summit"
 STATE_FILE = Path("page_hash.txt")
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:146.0) Gecko/20100101 Firefox/146.0",
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    ),
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9"
 }
 
-response = requests.get(URL, headers=headers, timeout=30)
+def fetch_with_retry(session, url):
+    response = session.get(url, timeout=30)
+    if response.status_code == 200:
+        return response
+    time.sleep(30)
+    return session.get(url, timeout=30)
+
+session = requests.Session()
+session.headers.update(headers)
+
+response = fetch_with_retry(session, URL)
 
 if response.status_code != 200:
     print(f"PAGE_STATUS=HTTP_{response.status_code}")

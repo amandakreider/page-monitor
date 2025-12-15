@@ -2,7 +2,7 @@ name: NIA Page Monitor
 
 on:
   schedule:
-    - cron: "0 13 * * *"   # once per day (13:00 UTC = 9am ET)
+    - cron: "0 4 * * *"   # once per day
   workflow_dispatch:
 
 permissions:

@@ -3,8 +3,12 @@ import hashlib
 import time
 from bs4 import BeautifulSoup
 from pathlib import Path
+import os
 
-URL = "https://www.nia.nih.gov/2026-dementia-care-summit"
+URL = os.environ.get("TARGET_URL")
+if not URL:
+    raise RuntimeError("TARGET_URL environment variable is not set")
+
 STATE_FILE = Path("page_hash.txt")
 LAST_MOD_FILE = Path("last_modified.txt")
 

@@ -14,22 +14,26 @@ response = requests.get(URL, headers=headers, timeout=30)
 response.raise_for_status()
 
 soup = BeautifulSoup(response.text, "html.parser")
-
-# 🔍 Pick the main content area
 main = soup.find("main") or soup.body
 text = main.get_text(separator=" ", strip=True)
-print(text)
 
 # Hash the visible text
 current_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
 
+changed = False
+
 if STATE_FILE.exists():
     old_hash = STATE_FILE.read_text()
     if old_hash != current_hash:
-        print("🚨 Page content changed!")
-    else:
-        print("No change.")
+        changed = True
 else:
-    print("Tracking started.")
+    # First run → treat as change so you get confirmation
+    changed = True
 
 STATE_FILE.write_text(current_hash)
+
+# output for GitHub Actions
+if changed:
+    print("PAGE_CHANGED=true")
+else:
+    print("PAGE_CHANGED=false")

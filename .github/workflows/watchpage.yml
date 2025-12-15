@@ -1,4 +1,4 @@
-name: NIA Page Monitor
+name: Page Monitor
 
 on:
   schedule:
@@ -36,22 +36,29 @@ jobs:
           echo "$output"
           echo "$output" >> $GITHUB_OUTPUT
 
+      - name: Create issue body if page changed
+        if: contains(steps.monitor.outputs.PAGE_CHANGED, 'true')
+        run: |
+          sed "s|{{URL}}|${TARGET_URL}|g" .github/issue-body.md > issue-body-rendered.md
+        env:
+          TARGET_URL: ${{ secrets.TARGET_URL }}
+
       - name: Create or update issue if page changed
         if: contains(steps.monitor.outputs.PAGE_CHANGED, 'true')
         uses: peter-evans/create-issue-from-file@v5
         with:
-          title: "NIA Dementia Care Summit page changed"
-          content-filepath: .github/issue-body.md
+          title: "Page content changed"
+          content-filepath: issue-body-rendered.md
           labels: monitoring, automated
 
-      - name: Commit state file
+      - name: Commit state files
         run: |
-          if [ -f page_hash.txt ]; then
+          if [ -f page_hash.txt ] || [ -f last_modified.txt ]; then
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
-            git add -f page_hash.txt
-            git commit -m "Update page hash" || echo "No changes"
+            git add -f page_hash.txt last_modified.txt || true
+            git commit -m "Update page state" || echo "No changes"
             git push
           else
-            echo "page_hash.txt not created (page fetch failed); skipping commit"
+            echo "No state files created; skipping commit"
           fi

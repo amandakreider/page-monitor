@@ -1,8 +1,6 @@
 name: Page Monitor
 
 on:
-  schedule:
-    - cron: "0 4 * * *"   # once per day
   workflow_dispatch:
 
 permissions:
@@ -62,3 +60,4 @@ jobs:
           else
             echo "No state files created; skipping commit"
           fi
+
